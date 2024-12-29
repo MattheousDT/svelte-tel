@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Sveltel } from "$lib/sveltel.svelte";
+	import { Sveltel } from "$lib/index.js";
 
 	let input: HTMLInputElement;
 
@@ -28,7 +28,7 @@
 		>
 			<option value={null} disabled>❓️ Select country</option>
 			{#each tel.countries as country}
-				<option value={country.code}>
+				<option value={country.code} selected={country.code === tel.country}>
 					{getFlagEmoji(country.code)}
 					{country.name}
 				</option>

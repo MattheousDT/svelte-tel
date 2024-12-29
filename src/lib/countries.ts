@@ -52,12 +52,6 @@ export const COUNTRIES = [
 		dialCode: "213",
 	},
 	{
-		name: "American Samoa",
-		regions: ["oceania"],
-		code: "as",
-		dialCode: "1684",
-	},
-	{
 		name: "Andorra",
 		regions: ["europe"],
 		code: "ad",
@@ -231,12 +225,6 @@ export const COUNTRIES = [
 		format: "(00) 000000000",
 	},
 	{
-		name: "British Indian Ocean Territory",
-		regions: ["asia"],
-		code: "io",
-		dialCode: "246",
-	},
-	{
 		name: "Brunei",
 		regions: ["asia"],
 		code: "bn",
@@ -331,13 +319,6 @@ export const COUNTRIES = [
 		dialCode: "238",
 	},
 	{
-		name: "Caribbean Netherlands",
-		regions: ["america", "carribean"],
-		code: "bq",
-		dialCode: "599",
-		priority: 1,
-	},
-	{
 		name: "Central African Republic",
 		regions: ["africa"],
 		code: "cf",
@@ -376,30 +357,11 @@ export const COUNTRIES = [
 		dialCode: "269",
 	},
 	{
-		name: "Congo",
-		regions: ["africa"],
-		code: "cd",
-		dialCode: "243",
-	},
-	{
-		name: "Congo",
-		regions: ["africa"],
-		code: "cg",
-		dialCode: "242",
-	},
-	{
 		name: "Costa Rica",
 		regions: ["america", "central-america"],
 		code: "cr",
 		dialCode: "506",
 		format: "0000-0000",
-	},
-	{
-		name: "Côte d’Ivoire",
-		regions: ["africa"],
-		code: "ci",
-		dialCode: "225",
-		format: "00 00 00 00",
 	},
 	{
 		name: "Croatia",
@@ -433,6 +395,12 @@ export const COUNTRIES = [
 		code: "cz",
 		dialCode: "420",
 		format: "000 000 000",
+	},
+	{
+		name: "Democratic Republic of the Congo",
+		regions: ["africa"],
+		code: "cd",
+		dialCode: "243",
 	},
 	{
 		name: "Denmark",
@@ -698,6 +666,13 @@ export const COUNTRIES = [
 		dialCode: "39",
 		format: "000 0000000",
 		priority: 0,
+	},
+	{
+		name: "Ivory Coast",
+		regions: ["africa"],
+		code: "ci",
+		dialCode: "225",
+		format: "00 00 00 00",
 	},
 	{
 		name: "Jamaica",
@@ -985,6 +960,13 @@ export const COUNTRIES = [
 		format: "00 00000000",
 	},
 	{
+		name: "Netherlands Antilles",
+		regions: ["america", "carribean"],
+		code: "bq",
+		dialCode: "599",
+		priority: 1,
+	},
+	{
 		name: "New Caledonia",
 		regions: ["oceania"],
 		code: "nc",
@@ -1110,6 +1092,12 @@ export const COUNTRIES = [
 		regions: ["asia", "middle-east"],
 		code: "qa",
 		dialCode: "974",
+	},
+	{
+		name: "Republic of the Congo",
+		regions: ["africa"],
+		code: "cg",
+		dialCode: "242",
 	},
 	{
 		name: "Réunion",
@@ -1489,6 +1477,12 @@ export const TERRITORIES = [
 		regions: ["america", "north-america"],
 		code: "bm",
 		dialCode: "1441",
+	},
+	{
+		name: "British Indian Ocean Territory",
+		regions: ["asia"],
+		code: "io",
+		dialCode: "246",
 	},
 	{
 		name: "British Virgin Islands",

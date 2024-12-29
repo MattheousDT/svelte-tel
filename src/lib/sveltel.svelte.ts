@@ -6,20 +6,26 @@ import {
 	type Region,
 	type Subregion,
 } from "./countries.js";
+import { detectCountry, formatNumber, pickAppropriateCountry, sanitizeNumber } from "./utils.js";
 
-type SveltelConfig = {
+/** Configuration options for the Sveltel instance. */
+export type SveltelConfig = {
+	/** The default country to use. */
 	defaultCountry?: CountryCode;
+	/** The default phone number to use. */
 	defaultValue?: string;
+	/** Countries to exclude from the list. */
 	excludedCountries?: CountryCode[];
+	/** Territories to exclude from the list. */
 	excludedTerritories?: CountryCode[];
+	/** Regions to exclude from the list. */
 	excludedRegions?: Region[];
+	/** Subregions to exclude from the list. */
 	excludedSubregions?: Subregion[];
+	/** Whether to include territories in the list. */
 	includeTerritories?: boolean;
 };
 
-/**
- * Svelte 5 telephone input state management
- */
 export class Sveltel {
 	/* ---- Non-reactive ---- */
 	#excludedCountries: CountryCode[] = [];
@@ -38,103 +44,52 @@ export class Sveltel {
 	/** Raw input value from the user. This should be sanitised to only include numbers */
 	#inputValue = $state<string | undefined>();
 
-	/* ---- Private Methods ---- */
-
-	#formatNumber = (num: string | undefined) => {
-		// Step 1: Ensure number starts with +
-		if (!num) return "+";
-
-		// Step 2: Detect country code
-		if (!this.#country) return `+${num}`;
-
-		// Step 3: Apply formatting on number until current point
-		const format =
-			this.#country.format ??
-			Array(
-				// Maxiumum length of number is 15 including international calling prefix and dial code
-				// https://en.wikipedia.org/wiki/Telephone_number
-				15 - 1 - this.#country.dialCode.length,
-			)
-				.fill("0")
-				.join("");
-		let numI = this.#country.dialCode.length;
-		let formatI = -1; // Start at -1 to account for the space between dial code and number
-		let formattedNum = `+${this.#country.dialCode}`;
-		num = num.replace(/\D/g, "");
-
-		console.log(format);
-
-		while (numI < num.length && formatI < format.length) {
-			if (format[formatI] === "0") {
-				formattedNum += num[numI];
-				numI++;
-			} else {
-				// Add format character
-				// Note: If format character is not found, add a space. This is the character between the dial code and the number.
-				// We do this here so the user can backspace correctly.
-				formattedNum += format[formatI] ?? " ";
-			}
-			formatI++;
-		}
-
-		// Step 4: Return formatted number
-		return formattedNum;
-	};
-
-	#numberMatchesCountry = (num: string, country: Country) => {
-		const startsWithDialCode = num.startsWith(country.dialCode);
-
-		if (startsWithDialCode && "areaCodes" in country && country.areaCodes) {
-			const areaCode = country.areaCodes.find((code) =>
-				code.startsWith(num.slice(country.dialCode.length, code.length)),
-			);
-			if (areaCode) return true;
-		}
-
-		return startsWithDialCode;
-	};
-
-	#detectCountry = (num: string) => {
-		// Get all possible countries
-		const possibleCountries = this.countries.filter((c) => num.startsWith(c.dialCode));
-
-		// Sort by dial code length
-		possibleCountries.sort((a, b) => b.dialCode.length - a.dialCode.length);
-
-		// Sort by priority
-		possibleCountries.sort((a, b) => (a.priority ?? 0) + (b.priority ?? 0));
-
-		// Check if country has area codes and if number matches
-		for (const country of possibleCountries) {
-			if ("areaCodes" in country && country.areaCodes) {
-				const match = country.areaCodes.find((code) => num.startsWith(country.dialCode + code));
-				if (match) return country;
-			}
-		}
-
-		// Return first country
-		return possibleCountries[0];
-	};
-
-	#sanitizeNumber = (num: string) => {
-		return num.replace(/\D/g, "");
-	};
-
 	/* ---- Derived ---- */
 
-	#detectedCountry = $derived<Country | undefined>(this.#detectCountry(this.#inputValue ?? ""));
-	#country = $derived.by(() => {
-		if (this.#preferredCountry) {
-			const c = this.countries.find((c) => c.code === this.#preferredCountry!.code);
-			if (!c) return this.#detectedCountry;
-			if (this.#numberMatchesCountry(this.#inputValue ?? "", c)) return c;
-		}
-		return this.#detectedCountry;
-	});
-	#value = $derived(this.#formatNumber(this.#inputValue));
+	#detectedCountry = $derived<Country | undefined>(
+		detectCountry(this.#inputValue ?? "", this.countries),
+	);
+	#country = $derived(
+		pickAppropriateCountry(
+			this.#inputValue ?? "",
+			this.#detectedCountry,
+			this.#preferredCountry,
+			this.countries,
+		),
+	);
+	#value = $derived(formatNumber(this.#inputValue, this.#country));
 
 	/* ---- Constructor ---- */
 
+	/**
+	 * Basic headless phone number input handling for Svelte.
+	 *
+	 * You only need to write 3 lines of code to get started:
+	 *
+	 * 1. Import the `Sveltel` class from the package.
+	 * 2. Create a new instance of `Sveltel` in your script tag.
+	 * 3. Add `bind:value={tel.value}` to your input element.
+	 *
+	 * @example
+	 * ```svelte
+	 * <script>
+	 *   import { Sveltel } from "sveltel";
+	 *
+	 *   const tel = new Sveltel();
+	 * </script>
+	 *
+	 * <input type="tel" bind:value={tel.value} />
+	 *
+	 * <!-- Now you can access the country data and the raw phone number -->
+	 *
+	 * <p>Country: {tel.countryData.name}</p>
+	 * <p>Country Code: {tel.countryData.code}</p>
+	 * <p>Phone Number: {tel.value}</p>
+	 * <p>Raw Phone Number: {tel.rawValue}</p>
+	 * ```
+	 *
+	 * @param config - Configuration options for the Sveltel instance
+	 */
 	constructor(config: SveltelConfig) {
 		if (config.defaultCountry) {
 			const c = this.countries.find((c) => c.code === config.defaultCountry?.toLowerCase());
@@ -143,7 +98,7 @@ export class Sveltel {
 		}
 
 		if (config.defaultValue) {
-			this.#inputValue = this.#sanitizeNumber(config.defaultValue);
+			this.#inputValue = sanitizeNumber(config.defaultValue);
 		}
 
 		this.#excludedCountries = config.excludedCountries ?? [];
@@ -155,22 +110,27 @@ export class Sveltel {
 
 	/* ---- Public Methods ---- */
 
+	/* The current value of the phone number input */
 	get value() {
 		return this.#value;
 	}
 
+	/* Update the current value of the phone number input */
 	set value(val: string) {
-		this.#inputValue = this.#sanitizeNumber(val);
+		this.#inputValue = sanitizeNumber(val);
 	}
 
+	/* The raw value of the phone number input */
 	get rawValue() {
 		return this.#value.replace(/\D/g, "");
 	}
 
+	/* The current country code */
 	get country() {
 		return this.#country?.code ?? null;
 	}
 
+	/* Update the current country code */
 	set country(code: CountryCode | null) {
 		code = code?.toLowerCase() ?? null;
 		const c = this.countries.find((c) => c.code === code);
@@ -184,10 +144,12 @@ export class Sveltel {
 		}
 	}
 
+	/* The current country data */
 	get countryData() {
 		return this.#country;
 	}
 
+	/* The list of countries currently available */
 	get countries() {
 		let countries: Country[] = COUNTRIES;
 
