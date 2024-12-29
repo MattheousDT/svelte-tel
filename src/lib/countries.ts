@@ -128,7 +128,7 @@ export const COUNTRIES = [
 		code: "au",
 		dialCode: "61",
 		format: "(00) 0000 0000",
-		areaCodes: ["2", "3", "4", "7", "8", "02", "03", "04", "07", "08"],
+		areaCodes: ["02", "03", "04", "07", "08"],
 	},
 	{
 		name: "Austria",
@@ -522,6 +522,7 @@ export const COUNTRIES = [
 		regions: ["asia", "ex-ussr"],
 		code: "ge",
 		dialCode: "995",
+		format: "00 000 00 00",
 	},
 	{
 		name: "Germany",
@@ -1390,7 +1391,6 @@ export const COUNTRIES = [
 		code: "gb",
 		dialCode: "44",
 		format: "0000 000000",
-		priority: 1,
 	},
 	{
 		name: "United States",
@@ -1423,7 +1423,8 @@ export const COUNTRIES = [
 		regions: ["europe"],
 		code: "va",
 		dialCode: "39",
-		format: "00 0000 0000",
+		format: "000 0000000",
+		priority: 1,
 	},
 	{
 		name: "Venezuela",
@@ -1545,6 +1546,7 @@ export const TERRITORIES = [
 		code: "je",
 		dialCode: "44",
 		format: "0000 000000",
+		priority: 1,
 	},
 	{
 		name: "Montserrat",

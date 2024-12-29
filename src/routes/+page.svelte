@@ -6,7 +6,7 @@
 	let includeTerritories = $state(false);
 
 	const tel = new Sveltel({
-		defaultCountry: "GB",
+		defaultCountry: "gb",
 		// svelte-ignore state_referenced_locally This is just to set the default value, we don't need to update in the constructor
 		includeTerritories,
 	});
@@ -29,8 +29,6 @@
 	<div class="label-text">Phone number</div>
 	<div class="join">
 		<select
-			name=""
-			id=""
 			bind:value={tel.country}
 			onchange={() => input?.focus()}
 			class="join-item select select-bordered select-lg max-w-[calc(1ch+4.5rem)]"

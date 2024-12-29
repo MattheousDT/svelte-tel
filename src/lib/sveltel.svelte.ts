@@ -61,7 +61,7 @@ export class Sveltel {
 	/* ---- Constructor ---- */
 
 	/**
-	 * Basic headless phone number input handling for Svelte.
+	 * Simple headless phone number input handling for Svelte.
 	 *
 	 * You only need to write 3 lines of code to get started:
 	 *
@@ -109,12 +109,11 @@ export class Sveltel {
 
 	/* ---- Public Methods ---- */
 
-	/* The current value of the phone number input */
+	/** The current value of the phone number input */
 	get value() {
 		return this.#value;
 	}
 
-	/* Update the current value of the phone number input */
 	set value(val: string) {
 		// Wait for the next tick to update the value
 		tick().then(() => {
@@ -122,17 +121,16 @@ export class Sveltel {
 		});
 	}
 
-	/* The raw value of the phone number input */
+	/** The raw value of the phone number input */
 	get rawValue() {
 		return this.#value.replace(/\D/g, "");
 	}
 
-	/* The current country code */
+	/** The current country code */
 	get country() {
 		return this.#country?.code ?? null;
 	}
 
-	/* Update the current country code */
 	set country(code: CountryCode | null) {
 		code = code?.toLowerCase() ?? null;
 		const c = this.countries.find((c) => c.code === code);
@@ -146,12 +144,12 @@ export class Sveltel {
 		}
 	}
 
-	/* The current country data */
+	/** The current country data */
 	get countryData() {
 		return this.#country;
 	}
 
-	/* The list of countries currently available */
+	/** The list of countries currently available */
 	get countries() {
 		let countries: Country[] = COUNTRIES;
 

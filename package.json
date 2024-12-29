@@ -41,6 +41,7 @@
 		"@sveltejs/kit": "^2.0.0",
 		"@sveltejs/package": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^4.0.0",
+		"@tailwindcss/typography": "^0.5.15",
 		"autoprefixer": "^10.4.20",
 		"daisyui": "^4.12.23",
 		"prettier": "^3.3.2",
@@ -54,7 +55,5 @@
 		"vite": "^5.4.11",
 		"vitest": "^2.0.4"
 	},
-	"dependencies": {
-		"@tailwindcss/typography": "^0.5.15"
-	}
+	"dependencies": {}
 }

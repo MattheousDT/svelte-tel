@@ -1,58 +1,110 @@
-# create-svelte
+# Sveltel
 
-Everything you need to build a Svelte library, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+Simple headless phone number input handling for Svelte.
 
-Read more about creating a library [in the docs](https://svelte.dev/docs/kit/packaging).
+[![View Demo](https://img.shields.io/badge/View%20Demo-blue)](https://mattheousdt.github.io/sveltel/)
+[![npm](https://img.shields.io/npm/v/sveltel)](https://www.npmjs.com/package/sveltel)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/MattheousDT/sveltel/deploy.yml?branch=master)
 
-## Creating a project
+## Motivation
 
-If you're seeing this, you've probably already done this step. Congrats!
+I needed a library that would perform some basic frontend formatting of phone numbers (properly validated on the backend) but I didn't want to have to ship a massive library like `libphonenumber-js` to the client just for this luxury. Proper validation can be performed on the backend, so I just needed something that would format the phone number as the user typed it. The library is fully headless, so you can use it however you want. In the future I may add some components that use the library, but for now it's just a simple class.
 
-```bash
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## Installation
 
 ```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+npm install sveltel
 ```
 
-Everything inside `src/lib` is part of your library, everything inside `src/routes` can be used as a showcase or preview app.
+## Usage
 
-## Building
+```svelte
+<script>
+	import { Sveltel } from "sveltel";
 
-To build your library:
+	// Initialize the class
+	const tel = new Sveltel();
+</script>
 
-```bash
-npm run package
+<!-- Bind the value to the input -->
+<input type="tel" bind:value={tel.value} />
+
+<!-- Now you can access the country data and the raw phone number -->
+
+<p>Country: {tel.countryData.name}</p>
+<p>Country Code: {tel.countryData.code}</p>
+<p>Phone Number: {tel.value}</p>
+<p>Raw Phone Number: {tel.rawValue}</p>
 ```
 
-To create a production version of your showcase app:
+🎉 That's literally it 🎉
 
-```bash
-npm run build
+## More complex example
+
+Now you can use `tel` to do whatever you want.
+Here's an example of how you might create a phone input with a country selector.
+
+```svelte
+<script lang="ts">
+	import { Sveltel } from "sveltel";
+	import { getFlagEmoji } from "path-to-your-flag-emoji-function";
+
+	let input: HTMLInputElement;
+
+	const tel = new Sveltel({ defaultCountry: "gb" });
+</script>
+
+<label>
+	Phone number
+	<div>
+		<select
+			bind:value={tel.country}
+			onchange={() => {
+				// Focus the input when the country is selected
+				input?.focus();
+			}}
+		>
+			<option value={null} disabled>❓️ Select a country</option>
+			{#each tel.countries as country}
+				<option value={country.code}>
+					{getFlagEmoji(country.code)}
+					{country.name}
+				</option>
+			{/each}
+		</select>
+		<input type="tel" bind:this={input} bind:value={tel.value} />
+	</div>
+</label>
 ```
 
-You can preview the production build with `npm run preview`.
+Still need more examples? [Check out the demo website](https://mattheousdt.github.io/sveltel/)
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+## Options
 
-## Publishing
+```svelte
+<script>
+	import { Sveltel } from "sveltel";
 
-Go into the `package.json` and give your package the desired name through the `"name"` option. Also consider adding a `"license"` field and point it to a `LICENSE` file which you can create from a template (one popular option is the [MIT license](https://opensource.org/license/mit/)).
+	const tel = new Sveltel({
+		// Default data
+		defaultCountry: "US",
+		// Note: defaultValue takes precedence over the defaultCountry
+		defaultValue: "1234567890",
 
-To publish your library to [npm](https://www.npmjs.com):
+		// Exclude countries/regions
+		excludeCountries: ["CA", "MX"],
+		excludeRegions: ["africa"],
+		excludeSubregions: ["eu"],
 
-```bash
-npm publish
+		// Include territories like Jersey, Cayman Islands, etc.
+		includeTerritories: true,
+	});
+</script>
+
+<!-- All options are $state() runes, so you can bind or change them after initialization -->
+<input type="checkbox" bind:checked={tel.includeTerritories} />
 ```
+
+## Contributing
+
+I'm open to contributions, but I'm not sure how much more I want to add to this library. If you have a feature request, feel free to open an issue and we can discuss it. If you see a bug (most likely you will), please open an issue or a PR and I'll take a look.
