@@ -1,3 +1,4 @@
+import { tick } from "svelte";
 import {
 	COUNTRIES,
 	TERRITORIES,
@@ -27,14 +28,12 @@ export type SveltelConfig = {
 };
 
 export class Sveltel {
-	/* ---- Non-reactive ---- */
-	#excludedCountries: CountryCode[] = [];
-	#excludedTerritories: CountryCode[] = [];
-	#excludedRegions: Region[] = [];
-	#excludedSubregions: Subregion[] = [];
-	#includeTerritories = false;
-
 	/* ---- State ---- */
+	excludedCountries: CountryCode[] = $state([]);
+	excludedTerritories: CountryCode[] = $state([]);
+	excludedRegions: Region[] = $state([]);
+	excludedSubregions: Subregion[] = $state([]);
+	includeTerritories = $state(false);
 	/**
 	 * If the user has selected a country, this will be the preferred country.
 	 * This will be preferred in future if the number matches the country.
@@ -101,11 +100,11 @@ export class Sveltel {
 			this.#inputValue = sanitizeNumber(config.defaultValue);
 		}
 
-		this.#excludedCountries = config.excludedCountries ?? [];
-		this.#excludedTerritories = config.excludedTerritories ?? [];
-		this.#excludedRegions = config.excludedRegions ?? [];
-		this.#excludedSubregions = config.excludedSubregions ?? [];
-		this.#includeTerritories = config.includeTerritories ?? false;
+		this.excludedCountries = config.excludedCountries ?? [];
+		this.excludedTerritories = config.excludedTerritories ?? [];
+		this.excludedRegions = config.excludedRegions ?? [];
+		this.excludedSubregions = config.excludedSubregions ?? [];
+		this.includeTerritories = config.includeTerritories ?? false;
 	}
 
 	/* ---- Public Methods ---- */
@@ -117,7 +116,10 @@ export class Sveltel {
 
 	/* Update the current value of the phone number input */
 	set value(val: string) {
-		this.#inputValue = sanitizeNumber(val);
+		// Wait for the next tick to update the value
+		tick().then(() => {
+			this.#inputValue = sanitizeNumber(val);
+		});
 	}
 
 	/* The raw value of the phone number input */
@@ -154,35 +156,35 @@ export class Sveltel {
 		let countries: Country[] = COUNTRIES;
 
 		// Include territories
-		if (this.#includeTerritories) {
+		if (this.includeTerritories) {
 			countries = countries.concat(TERRITORIES).sort((a, b) => (a.name > b.name ? 1 : -1));
 		}
 
 		// Exclude countries
-		if (this.#excludedCountries.length) {
+		if (this.excludedCountries.length) {
 			countries = countries.filter(
-				(c) => !this.#excludedCountries.map((x) => x.toLowerCase()).includes(c.code),
+				(c) => !this.excludedCountries.map((x) => x.toLowerCase()).includes(c.code),
 			);
 		}
 
 		// Exclude territories
-		if (this.#excludedTerritories.length) {
+		if (this.excludedTerritories.length) {
 			countries = countries.filter(
-				(c) => !this.#excludedTerritories.map((x) => x.toLowerCase()).includes(c.code),
+				(c) => !this.excludedTerritories.map((x) => x.toLowerCase()).includes(c.code),
 			);
 		}
 
 		// Exclude regions
-		if (this.#excludedRegions.length) {
+		if (this.excludedRegions.length) {
 			countries = countries.filter(
-				(c) => !c.regions.some((r) => this.#excludedRegions.includes(r as Region)),
+				(c) => !c.regions.some((r) => this.excludedRegions.includes(r as Region)),
 			);
 		}
 
 		// Exclude subregions
-		if (this.#excludedSubregions.length) {
+		if (this.excludedSubregions.length) {
 			countries = countries.filter(
-				(c) => !c.regions.some((s) => this.#excludedSubregions.includes(s as Subregion)),
+				(c) => !c.regions.some((s) => this.excludedSubregions.includes(s as Subregion)),
 			);
 		}
 

@@ -32,6 +32,8 @@ export type Country = {
 	areaCodes?: AreaCodes;
 };
 
+const US_MASK = "(000) 000-0000";
+
 export const COUNTRIES = [
 	{
 		name: "Afghanistan",
@@ -81,7 +83,6 @@ export const COUNTRIES = [
 		code: "ar",
 		dialCode: "54",
 		format: "(00) 00000000",
-		priority: 0,
 		areaCodes: [
 			"11",
 			"221",
@@ -127,7 +128,6 @@ export const COUNTRIES = [
 		code: "au",
 		dialCode: "61",
 		format: "(00) 0000 0000",
-		priority: 0,
 		areaCodes: ["2", "3", "4", "7", "8", "02", "03", "04", "07", "08"],
 	},
 	{
@@ -265,7 +265,7 @@ export const COUNTRIES = [
 		regions: ["america", "north-america"],
 		code: "ca",
 		dialCode: "1",
-		format: "(000) 000-0000",
+		format: US_MASK,
 		priority: 1,
 		areaCodes: [
 			"204",
@@ -380,7 +380,6 @@ export const COUNTRIES = [
 		regions: ["america", "carribean"],
 		code: "cw",
 		dialCode: "599",
-		priority: 0,
 	},
 	{
 		name: "Cyprus",
@@ -426,6 +425,7 @@ export const COUNTRIES = [
 		regions: ["america", "carribean"],
 		code: "do",
 		dialCode: "1",
+		format: US_MASK,
 		priority: 2,
 		areaCodes: ["809", "829", "849"],
 	},
@@ -553,7 +553,6 @@ export const COUNTRIES = [
 		regions: ["america", "carribean"],
 		code: "gp",
 		dialCode: "590",
-		priority: 0,
 	},
 	{
 		name: "Guam",
@@ -611,6 +610,7 @@ export const COUNTRIES = [
 		regions: ["europe"],
 		code: "hu",
 		dialCode: "36",
+		format: "000-00-00-00",
 	},
 	{
 		name: "Iceland",
@@ -665,7 +665,6 @@ export const COUNTRIES = [
 		code: "it",
 		dialCode: "39",
 		format: "000 0000000",
-		priority: 0,
 	},
 	{
 		name: "Ivory Coast",
@@ -678,7 +677,10 @@ export const COUNTRIES = [
 		name: "Jamaica",
 		regions: ["america", "carribean"],
 		code: "jm",
-		dialCode: "1876",
+		dialCode: "1",
+		format: US_MASK,
+		priority: 2,
+		areaCodes: ["876", "658"],
 	},
 	{
 		name: "Japan",
@@ -882,7 +884,6 @@ export const COUNTRIES = [
 		code: "mx",
 		dialCode: "52",
 		format: "000 000 0000",
-		priority: 0,
 		areaCodes: ["55", "81", "33", "656", "664", "998", "774", "229"],
 	},
 	{
@@ -1117,7 +1118,6 @@ export const COUNTRIES = [
 		code: "ru",
 		dialCode: "7",
 		format: "(000) 000-00-00",
-		priority: 0,
 	},
 	{
 		name: "Rwanda",
@@ -1348,7 +1348,7 @@ export const COUNTRIES = [
 	},
 	{
 		name: "Turkey",
-		regions: ["europe"],
+		regions: ["asia"],
 		code: "tr",
 		dialCode: "90",
 		format: "000 000 00 00",
@@ -1397,8 +1397,7 @@ export const COUNTRIES = [
 		regions: ["america", "north-america"],
 		code: "us",
 		dialCode: "1",
-		format: "(000) 000-0000",
-		priority: 0,
+		format: US_MASK,
 	},
 	{
 		name: "Uruguay",
@@ -1425,7 +1424,6 @@ export const COUNTRIES = [
 		code: "va",
 		dialCode: "39",
 		format: "00 0000 0000",
-		priority: 1,
 	},
 	{
 		name: "Venezuela",
@@ -1464,19 +1462,28 @@ export const TERRITORIES = [
 		name: "American Samoa",
 		regions: ["oceania"],
 		code: "as",
-		dialCode: "1684",
+		dialCode: "1",
+		format: US_MASK,
+		priority: 3,
+		areaCodes: ["684"],
 	},
 	{
 		name: "Anguilla",
 		regions: ["america", "carribean"],
 		code: "ai",
-		dialCode: "1264",
+		dialCode: "1",
+		format: US_MASK,
+		priority: 3,
+		areaCodes: ["264"],
 	},
 	{
 		name: "Bermuda",
 		regions: ["america", "north-america"],
 		code: "bm",
-		dialCode: "1441",
+		dialCode: "1",
+		format: US_MASK,
+		priority: 3,
+		areaCodes: ["441"],
 	},
 	{
 		name: "British Indian Ocean Territory",
@@ -1488,13 +1495,19 @@ export const TERRITORIES = [
 		name: "British Virgin Islands",
 		regions: ["america", "carribean"],
 		code: "vg",
-		dialCode: "1284",
+		dialCode: "1",
+		format: US_MASK,
+		priority: 3,
+		areaCodes: ["284"],
 	},
 	{
 		name: "Cayman Islands",
 		regions: ["america", "carribean"],
 		code: "ky",
-		dialCode: "1345",
+		dialCode: "1",
+		format: US_MASK,
+		priority: 3,
+		areaCodes: ["345"],
 	},
 	{
 		name: "Cook Islands",
@@ -1537,7 +1550,10 @@ export const TERRITORIES = [
 		name: "Montserrat",
 		regions: ["america", "carribean"],
 		code: "ms",
-		dialCode: "1664",
+		dialCode: "1",
+		format: US_MASK,
+		priority: 3,
+		areaCodes: ["664"],
 	},
 	{
 		name: "Niue",
@@ -1555,7 +1571,10 @@ export const TERRITORIES = [
 		name: "Northern Mariana Islands",
 		regions: ["oceania"],
 		code: "mp",
-		dialCode: "1670",
+		dialCode: "1",
+		format: US_MASK,
+		priority: 3,
+		areaCodes: ["670"],
 	},
 	{
 		name: "Saint Barthélemy",
@@ -1587,7 +1606,10 @@ export const TERRITORIES = [
 		name: "Sint Maarten",
 		regions: ["america", "carribean"],
 		code: "sx",
-		dialCode: "1721",
+		dialCode: "1",
+		format: US_MASK,
+		priority: 3,
+		areaCodes: ["721"],
 	},
 	{
 		name: "Tokelau",
@@ -1599,13 +1621,19 @@ export const TERRITORIES = [
 		name: "Turks and Caicos Islands",
 		regions: ["america", "carribean"],
 		code: "tc",
-		dialCode: "1649",
+		dialCode: "1",
+		format: US_MASK,
+		priority: 3,
+		areaCodes: ["649"],
 	},
 	{
 		name: "U.S. Virgin Islands",
 		regions: ["america", "carribean"],
 		code: "vi",
-		dialCode: "1340",
+		dialCode: "1",
+		format: US_MASK,
+		priority: 3,
+		areaCodes: ["340"],
 	},
 	{
 		name: "Wallis and Futuna",

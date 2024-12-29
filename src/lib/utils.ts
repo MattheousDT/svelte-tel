@@ -24,7 +24,7 @@ export const detectCountry = (num: string, countries: Country[]): Country => {
 	possibleCountries.sort((a, b) => b.dialCode.length - a.dialCode.length);
 
 	// Sort by priority
-	possibleCountries.sort((a, b) => (a.priority ?? 0) + (b.priority ?? 0));
+	possibleCountries.sort((a, b) => ((a.priority ?? 0) < (b.priority ?? 0) ? -1 : 1));
 
 	// Check if country has area codes and if number matches
 	for (const country of possibleCountries) {

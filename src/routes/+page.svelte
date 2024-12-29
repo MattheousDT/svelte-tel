@@ -3,8 +3,12 @@
 
 	let input: HTMLInputElement;
 
+	let includeTerritories = $state(false);
+
 	const tel = new Sveltel({
 		defaultCountry: "GB",
+		// svelte-ignore state_referenced_locally This is just to set the default value, we don't need to update in the constructor
+		includeTerritories,
 	});
 
 	function getFlagEmoji(countryCode: string) {
@@ -15,6 +19,11 @@
 		return String.fromCodePoint(...codePoints);
 	}
 </script>
+
+<label for="">
+	<input type="checkbox" bind:checked={tel.includeTerritories} class="checkbox" />
+	Include territories
+</label>
 
 <label class="form-control">
 	<div class="label-text">Phone number</div>
