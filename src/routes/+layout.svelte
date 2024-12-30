@@ -3,4 +3,6 @@
 	let { children } = $props();
 </script>
 
-{@render children()}
+<div class="prose-lg mx-auto w-full max-w-xl px-4 py-8 prose-headings:font-bold">
+	{@render children()}
+</div>

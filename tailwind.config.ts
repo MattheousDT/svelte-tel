@@ -10,5 +10,6 @@ export default {
 	plugins: [typography, daisyui],
 	daisyui: {
 		logs: false,
+		themes: ["cupcake"],
 	} satisfies DaisyUIConfig,
 } satisfies Config;

@@ -89,22 +89,22 @@ export class Sveltel {
 	 *
 	 * @param config - Configuration options for the Sveltel instance
 	 */
-	constructor(config: SveltelConfig) {
-		if (config.defaultCountry) {
-			const c = this.countries.find((c) => c.code === config.defaultCountry?.toLowerCase());
+	constructor(config?: SveltelConfig) {
+		if (config?.defaultCountry) {
+			const c = this.countries.find((c) => c.code === config?.defaultCountry?.toLowerCase());
 			if (!c) throw new Error("Invalid country code");
 			this.#inputValue = c.dialCode;
 		}
 
-		if (config.defaultValue) {
-			this.#inputValue = sanitizeNumber(config.defaultValue);
+		if (config?.defaultValue) {
+			this.#inputValue = sanitizeNumber(config?.defaultValue);
 		}
 
-		this.excludedCountries = config.excludedCountries ?? [];
-		this.excludedTerritories = config.excludedTerritories ?? [];
-		this.excludedRegions = config.excludedRegions ?? [];
-		this.excludedSubregions = config.excludedSubregions ?? [];
-		this.includeTerritories = config.includeTerritories ?? false;
+		this.excludedCountries = config?.excludedCountries ?? [];
+		this.excludedTerritories = config?.excludedTerritories ?? [];
+		this.excludedRegions = config?.excludedRegions ?? [];
+		this.excludedSubregions = config?.excludedSubregions ?? [];
+		this.includeTerritories = config?.includeTerritories ?? false;
 	}
 
 	/* ---- Public Methods ---- */
