@@ -1,19 +1,19 @@
 <script>
-	import { Sveltel } from "../../lib";
+	import { Tel } from "$lib/tel.svelte.js";
 	import Example from "../example.svelte";
 	import SveltelComponent from "../sveltel_component.svelte";
 
-	const tel = new Sveltel({
+	const tel = new Tel({
 		defaultValue: "11234567890",
 	});
 
 	const source = `\<script lang="ts"\>
-	import { Sveltel } from "sveltel";
+	import { Tel } from "svelte-tel";
 	import { getFlagEmoji } from "path-to-your-flag-emoji-function";
 
 	let input: HTMLInputElement;
 
-	const tel = new Sveltel({ defaultCountry: "gb" });
+	const tel = new Tel({ defaultCountry: "gb" });
 \</script\>
 
 <label>
@@ -40,5 +40,5 @@
 </script>
 
 <Example {source}>
-	<SveltelComponent sveltel={tel} />
+	<SveltelComponent {tel} />
 </Example>

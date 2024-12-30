@@ -9,7 +9,7 @@ import {
 } from "./countries.js";
 import { detectCountry, formatNumber, pickAppropriateCountry, sanitizeNumber } from "./utils.js";
 
-/** Configuration options for the Sveltel instance. */
+/** Configuration options for the Tel instance. */
 export type SveltelConfig = {
 	/** The default country to use. */
 	defaultCountry?: CountryCode;
@@ -27,7 +27,7 @@ export type SveltelConfig = {
 	includeTerritories?: boolean;
 };
 
-export class Sveltel {
+export class Tel {
 	/* ---- State ---- */
 	excludedCountries: CountryCode[] = $state([]);
 	excludedTerritories: CountryCode[] = $state([]);
@@ -65,16 +65,16 @@ export class Sveltel {
 	 *
 	 * You only need to write 3 lines of code to get started:
 	 *
-	 * 1. Import the `Sveltel` class from the package.
-	 * 2. Create a new instance of `Sveltel` in your script tag.
+	 * 1. Import the `Tel` class from the package.
+	 * 2. Create a new instance of `Tel` in your script tag.
 	 * 3. Add `bind:value={tel.value}` to your input element.
 	 *
 	 * @example
 	 * ```svelte
 	 * <script>
-	 *   import { Sveltel } from "sveltel";
+	 *   import { Tel } from "svelte-tel";
 	 *
-	 *   const tel = new Sveltel();
+	 *   const tel = new Tel();
 	 * </script>
 	 *
 	 * <input type="tel" bind:value={tel.value} />
@@ -87,7 +87,7 @@ export class Sveltel {
 	 * <p>Raw Phone Number: {tel.rawValue}</p>
 	 * ```
 	 *
-	 * @param config - Configuration options for the Sveltel instance
+	 * @param config - Configuration options for the Tel instance
 	 */
 	constructor(config?: SveltelConfig) {
 		if (config?.defaultCountry) {

@@ -1,29 +1,45 @@
-# Sveltel
+# svelte-tel
 
 Simple headless phone number input handling for Svelte.
 
-[![View Demo](https://img.shields.io/badge/View%20Demo-blue)](https://mattheousdt.github.io/sveltel/)
-[![npm](https://img.shields.io/npm/v/sveltel)](https://www.npmjs.com/package/sveltel)
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/MattheousDT/sveltel/deploy.yml?branch=master)
+[![View Demo](https://img.shields.io/badge/View%20Demo-blue)](https://mattheousdt.github.io/svelte-tel/)
+[![npm](https://img.shields.io/npm/v/svelte-tel)](https://www.npmjs.com/package/svelte-tel)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/MattheousDT/svelte-tel/deploy.yml?branch=master)
 
-## Motivation
+> [!WARNING]
+> This library is in alpha stages and may have breaking changes in the future.
+>
+> _(it definitely will)_
 
-I needed a library that would perform some basic frontend formatting of phone numbers (properly validated on the backend) but I didn't want to have to ship a massive library like `libphonenumber-js` to the client just for this luxury. Proper validation can be performed on the backend, so I just needed something that would format the phone number as the user typed it. The library is fully headless, so you can use it however you want. In the future I may add some components that use the library, but for now it's just a simple class.
+## Motivation and Goals
+
+I needed a library that would perform some basic frontend formatting of phone numbers (properly validated on the backend) but I didn't want to have to ship a massive library like `libphonenumber-js` to the client just for this luxury. I just needed something that would be "good enough".
+
+The library is fully headless, so you can use it however you want. All logic _should_ be handled by the library, and the UI to be handled by you. This way, you can have full control over the look and feel of your phone input. I also want to make it entirely based on Runes so you get the full power of Svelte.
+
+Future things I'm considering:
+
+- Using an already existing library like `intl-tel-input` as a base.
+- Internationalization support.
+- More options for the class.
+- Pre-built components.
+
+If you have any suggestions, feel free to open an issue and we can discuss it.
 
 ## Installation
 
 ```bash
-npm install sveltel
+npm install svelte-tel
 ```
 
 ## Usage
 
 ```svelte
 <script>
-	import { Sveltel } from "sveltel";
+	import { Tel } from "svelte-tel";
 
 	// Initialize the class
-	const tel = new Sveltel();
+	const tel = new Tel();
 </script>
 
 <!-- Bind the value to the input -->
@@ -46,12 +62,12 @@ Here's an example of how you might create a phone input with a country selector.
 
 ```svelte
 <script lang="ts">
-	import { Sveltel } from "sveltel";
+	import { Tel } from "svelte-tel";
 	import { getFlagEmoji } from "path-to-your-flag-emoji-function";
 
 	let input: HTMLInputElement;
 
-	const tel = new Sveltel({ defaultCountry: "gb" });
+	const tel = new Tel({ defaultCountry: "gb" });
 </script>
 
 <label>
@@ -77,15 +93,15 @@ Here's an example of how you might create a phone input with a country selector.
 </label>
 ```
 
-Still need more examples? [Check out the demo website](https://mattheousdt.github.io/sveltel/)
+Still need more examples? [Check out the demo website](https://mattheousdt.github.io/svelte-tel/)
 
 ## Options
 
 ```svelte
 <script>
-	import { Sveltel } from "sveltel";
+	import { Tel } from "svelte-tel";
 
-	const tel = new Sveltel({
+	const tel = new Tel({
 		// Default data
 		defaultCountry: "US",
 		// Note: defaultValue takes precedence over the defaultCountry

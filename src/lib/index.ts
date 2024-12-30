@@ -1,2 +1,2 @@
 // Reexport your entry components here
-export * from "./sveltel.svelte";
+export * from "./tel.svelte";

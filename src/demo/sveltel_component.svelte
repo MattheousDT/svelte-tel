@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { Sveltel } from "$lib/index.js";
+	import { Tel } from "$lib/tel.svelte.js";
 
 	type Props = {
-		sveltel: Sveltel;
+		tel: Tel;
 	};
 
-	let { sveltel }: Props = $props();
+	let { tel }: Props = $props();
 
 	let input: HTMLInputElement;
 
@@ -22,13 +22,13 @@
 	<div class="sr-only">Phone number</div>
 	<div class="join">
 		<select
-			bind:value={sveltel.country}
+			bind:value={tel.country}
 			onchange={() => input?.focus()}
 			class="join-item select select-bordered select-lg max-w-[calc(1ch+4.5rem)]"
 		>
 			<option value={null} disabled>❓️ Select country</option>
-			{#each sveltel.countries as country}
-				<option value={country.code} selected={country.code === sveltel.country}>
+			{#each tel.countries as country}
+				<option value={country.code} selected={country.code === tel.country}>
 					{getFlagEmoji(country.code)}
 					{country.name}
 				</option>
@@ -37,7 +37,7 @@
 		<input
 			bind:this={input}
 			type="tel"
-			bind:value={sveltel.value}
+			bind:value={tel.value}
 			class="input input-lg join-item input-bordered w-full"
 		/>
 	</div>
