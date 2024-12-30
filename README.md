@@ -19,7 +19,7 @@ The library is fully headless, so you can use it however you want. All logic _sh
 
 Future things I'm considering:
 
-- Using an already existing library like `intl-tel-input` as a base.
+- Using an already existing library that doesn't use `libphonenumber-js` under the hood. (or succumbing to the fact that I'll have to use it)
 - Internationalization support.
 - More options for the class.
 - Pre-built components.
@@ -36,10 +36,10 @@ npm install svelte-tel
 
 ```svelte
 <script>
-	import { Tel } from "svelte-tel";
+  import { Tel } from "svelte-tel";
 
-	// Initialize the class
-	const tel = new Tel();
+  // Initialize the class
+  const tel = new Tel();
 </script>
 
 <!-- Bind the value to the input -->
@@ -62,34 +62,34 @@ Here's an example of how you might create a phone input with a country selector.
 
 ```svelte
 <script lang="ts">
-	import { Tel } from "svelte-tel";
-	import { getFlagEmoji } from "path-to-your-flag-emoji-function";
+  import { Tel } from "svelte-tel";
+  import { getFlagEmoji } from "path-to-your-flag-emoji-function";
 
-	let input: HTMLInputElement;
+  let input: HTMLInputElement;
 
-	const tel = new Tel({ defaultCountry: "gb" });
+  const tel = new Tel({ defaultCountry: "gb" });
 </script>
 
 <label>
-	Phone number
-	<div>
-		<select
-			bind:value={tel.country}
-			onchange={() => {
-				// Focus the input when the country is selected
-				input?.focus();
-			}}
-		>
-			<option value={null} disabled>❓️ Select a country</option>
-			{#each tel.countries as country}
-				<option value={country.code}>
-					{getFlagEmoji(country.code)}
-					{country.name}
-				</option>
-			{/each}
-		</select>
-		<input type="tel" bind:this={input} bind:value={tel.value} />
-	</div>
+  Phone number
+  <div>
+    <select
+      bind:value={tel.country}
+      onchange={() => {
+        // Focus the input when the country is selected
+        input?.focus();
+      }}
+    >
+      <option value={null} disabled>❓️ Select a country</option>
+      {#each tel.countries as country}
+        <option value={country.code}>
+          {getFlagEmoji(country.code)}
+          {country.name}
+        </option>
+      {/each}
+    </select>
+    <input type="tel" bind:this={input} bind:value={tel.value} />
+  </div>
 </label>
 ```
 
@@ -99,22 +99,22 @@ Still need more examples? [Check out the demo website](https://mattheousdt.githu
 
 ```svelte
 <script>
-	import { Tel } from "svelte-tel";
+  import { Tel } from "svelte-tel";
 
-	const tel = new Tel({
-		// Default data
-		defaultCountry: "US",
-		// Note: defaultValue takes precedence over the defaultCountry
-		defaultValue: "1234567890",
+  const tel = new Tel({
+    // Default data
+    defaultCountry: "US",
+    // Note: defaultValue takes precedence over the defaultCountry
+    defaultValue: "1234567890",
 
-		// Exclude countries/regions
-		excludeCountries: ["CA", "MX"],
-		excludeRegions: ["africa"],
-		excludeSubregions: ["eu"],
+    // Exclude countries/regions
+    excludeCountries: ["CA", "MX"],
+    excludeRegions: ["africa"],
+    excludeSubregions: ["eu"],
 
-		// Include territories like Jersey, Cayman Islands, etc.
-		includeTerritories: true,
-	});
+    // Include territories like Jersey, Cayman Islands, etc.
+    includeTerritories: true,
+  });
 </script>
 
 <!-- All options are $state() runes, so you can bind or change them after initialization -->
