@@ -1,191 +1,233 @@
-import { tick } from "svelte";
 import {
-	COUNTRIES,
-	TERRITORIES,
-	type Country,
+	formatIncompletePhoneNumber,
+	getCountries,
+	getCountryCallingCode,
+	getExampleNumber,
+	ParseError,
+	parsePhoneNumber,
+	//
 	type CountryCode,
-	type Region,
-	type Subregion,
-} from "./countries.js";
-import { detectCountry, formatNumber, pickAppropriateCountry, sanitizeNumber } from "./utils.js";
+} from "libphonenumber-js/min";
+import examples from "libphonenumber-js/mobile/examples";
+import { tick } from "svelte";
 
-/** Configuration options for the Tel instance. */
-export type SveltelConfig = {
-	/** The default country to use. */
-	defaultCountry?: CountryCode;
-	/** The default phone number to use. */
-	defaultValue?: string;
-	/** Countries to exclude from the list. */
-	excludedCountries?: CountryCode[];
-	/** Territories to exclude from the list. */
-	excludedTerritories?: CountryCode[];
-	/** Regions to exclude from the list. */
-	excludedRegions?: Region[];
-	/** Subregions to exclude from the list. */
-	excludedSubregions?: Subregion[];
-	/** Whether to include territories in the list. */
-	includeTerritories?: boolean;
-};
+export class Tel<
+	TFormat extends "national" | "international" = "international",
+	TIncluded extends CountryCode[] | undefined = undefined,
+	TExcluded extends CountryCode[] | undefined = undefined,
+> {
+	#input = $state("");
+	#country = $state<CountryCode | undefined>(undefined);
+	#format = $state<"international" | "national">("international");
 
-export class Tel {
-	/* ---- State ---- */
-	excludedCountries: CountryCode[] = $state([]);
-	excludedTerritories: CountryCode[] = $state([]);
-	excludedRegions: Region[] = $state([]);
-	excludedSubregions: Subregion[] = $state([]);
-	includeTerritories = $state(false);
-	/**
-	 * If the user has selected a country, this will be the preferred country.
-	 * This will be preferred in future if the number matches the country.
-	 * e.g. A user prefers Canada, future +1 numbers will be matched to Canada.
-	 */
-	#preferredCountry = $state<Country | undefined>();
-	/** Raw input value from the user. This should be sanitised to only include numbers */
-	#inputValue = $state<string | undefined>();
+	locale: Intl.LocalesArgument = $state("en");
+	hideCallingCode = $state(false);
+	editableCountryCode = $state(false);
+	includedCountries = $state<TIncluded>([] as unknown as TIncluded);
+	excludedCountries = $state<TExcluded>([] as unknown as TExcluded);
 
-	/* ---- Derived ---- */
+	// TODO: some extra stuff
+	#value = $derived.by(() => {
+		let val = this.#input;
 
-	#detectedCountry = $derived<Country | undefined>(
-		detectCountry(this.#inputValue ?? "", this.countries),
-	);
-	#country = $derived(
-		pickAppropriateCountry(
-			this.#inputValue ?? "",
-			this.#detectedCountry,
-			this.#preferredCountry,
-			this.countries,
-		),
-	);
-	#value = $derived(formatNumber(this.#inputValue, this.#country));
-
-	/* ---- Constructor ---- */
-
-	/**
-	 * Simple headless phone number input handling for Svelte.
-	 *
-	 * You only need to write 3 lines of code to get started:
-	 *
-	 * 1. Import the `Tel` class from the package.
-	 * 2. Create a new instance of `Tel` in your script tag.
-	 * 3. Add `bind:value={tel.value}` to your input element.
-	 *
-	 * @example
-	 * ```svelte
-	 * <script>
-	 *   import { Tel } from "svelte-tel";
-	 *
-	 *   const tel = new Tel();
-	 * </script>
-	 *
-	 * <input type="tel" bind:value={tel.value} />
-	 *
-	 * <!-- Now you can access the country data and the raw phone number -->
-	 *
-	 * <p>Country: {tel.countryData.name}</p>
-	 * <p>Country Code: {tel.countryData.code}</p>
-	 * <p>Phone Number: {tel.value}</p>
-	 * <p>Raw Phone Number: {tel.rawValue}</p>
-	 * ```
-	 *
-	 * @param config - Configuration options for the Tel instance
-	 */
-	constructor(config?: SveltelConfig) {
-		if (config?.defaultCountry) {
-			const c = this.countries.find((c) => c.code === config?.defaultCountry?.toLowerCase());
-			if (!c) throw new Error("Invalid country code");
-			this.#inputValue = c.dialCode;
+		if (this.#format === "international") {
+			if (this.#country && (!this.editableCountryCode || this.hideCallingCode)) {
+				const code = getCountryCallingCode(this.#country);
+				val = `+${code}${val.slice(code.length + 1)}`;
+			}
+			if (!val.startsWith("+")) val = `+${val}`;
+		} else {
+			val = val.replace(/^\+/, "");
 		}
 
-		if (config?.defaultValue) {
-			this.#inputValue = sanitizeNumber(config?.defaultValue);
-		}
+		return formatIncompletePhoneNumber(
+			val,
+			this.#format === "national" && this.#country ? this.#country : undefined,
+		);
+	});
 
-		this.excludedCountries = config?.excludedCountries ?? [];
-		this.excludedTerritories = config?.excludedTerritories ?? [];
-		this.excludedRegions = config?.excludedRegions ?? [];
-		this.excludedSubregions = config?.excludedSubregions ?? [];
-		this.includeTerritories = config?.includeTerritories ?? false;
+	#num = $derived.by(() => {
+		try {
+			return {
+				data: parsePhoneNumber(this.#value, this.#country),
+				error: null,
+			};
+		} catch (err) {
+			return {
+				data: null,
+				error: (err as ParseError).message,
+			};
+		}
+	});
+
+	#displayNames = $derived(new Intl.DisplayNames(this.locale, { type: "region" }));
+
+	constructor(
+		config?: {
+			defaultValue?: string;
+			/** The format to use when formatting the phone number */
+			format?: TFormat;
+			/** Whether to hide the country code prefix in the input */
+			hideCallingCode?: boolean;
+			/** Whether the country code is editable when in international format */
+			editableCountryCode?: boolean;
+			/** The countries to exclude from the countries list */
+			excludeCountries?: TExcluded;
+			/** The countries to include in the countries list */
+			includeCountries?: TIncluded;
+			/** Language to use for translations */
+			locale?: Intl.Locale;
+		} & (TFormat extends "national"
+			? { defaultCountry: CountryCode }
+			: { defaultCountry?: CountryCode }),
+	) {
+		if (config?.defaultValue) this.#input = config.defaultValue;
+		if (config?.defaultCountry) this.#country = config.defaultCountry;
+		if (config?.format) this.#format = config.format;
+		if (config?.hideCallingCode) this.hideCallingCode = config.hideCallingCode;
+		if (config?.editableCountryCode) this.editableCountryCode = config.editableCountryCode;
+		if (config?.excludeCountries) this.excludedCountries = config.excludeCountries;
+		if (config?.includeCountries) this.includedCountries = config.includeCountries;
+		if (config?.locale) this.locale = config.locale;
+
+		if (config?.editableCountryCode && config.defaultCountry && !config.defaultValue) {
+			this.#input = `+${getCountryCallingCode(config.defaultCountry)}`;
+		}
 	}
 
-	/* ---- Public Methods ---- */
-
-	/** The current value of the phone number input */
 	get value() {
+		if (this.hideCallingCode && this.#format === "international") {
+			return this.#value.replace(`+${getCountryCallingCode(this.#country!) ?? ""}`, "").trim();
+		}
 		return this.#value;
 	}
-
 	set value(val: string) {
-		// Wait for the next tick to update the value
 		tick().then(() => {
-			this.#inputValue = sanitizeNumber(val);
+			if (this.hideCallingCode && this.#format === "international" && this.#country) {
+				val = `+${getCountryCallingCode(this.#country)}${val}`;
+			}
+			this.#input = val;
 		});
 	}
 
-	/** The raw value of the phone number input */
-	get rawValue() {
-		return this.#value.replace(/\D/g, "");
+	get format() {
+		return this.#format as TFormat;
+	}
+	set format(val: TFormat) {
+		if (this.#num.data) {
+			this.#input =
+				val === "international"
+					? this.#num.data.formatInternational()
+					: this.#num.data.formatNational();
+		}
+		this.#format = val;
 	}
 
-	/** The current country code */
 	get country() {
-		return this.#country?.code ?? null;
+		return (
+			this.#num.data?.country ??
+			this.#country ??
+			this.#num.data?.getPossibleCountries().at(0) ??
+			null
+		);
+	}
+	set country(val: CountryCode | null) {
+		if (val === null) this.#format = "international";
+		this.#country = val ?? undefined;
 	}
 
-	set country(code: CountryCode | null) {
-		code = code?.toLowerCase() ?? null;
-		const c = this.countries.find((c) => c.code === code);
-		if (!c) throw new Error("Invalid country code");
-		this.#preferredCountry = c;
-
-		// Try updating current value
-		if (this.#detectedCountry && this.#inputValue) {
-			// Replace dial code with new country dial code
-			this.#inputValue = this.#inputValue.replace(this.#detectedCountry.dialCode, c.dialCode);
-		}
-	}
-
-	/** The current country data */
-	get countryData() {
-		return this.#country;
-	}
-
-	/** The list of countries currently available */
 	get countries() {
-		let countries: Country[] = COUNTRIES;
+		return getCountries()
+			.filter((code) => {
+				if (this.includedCountries?.length) return this.includedCountries.includes(code);
+				if (this.excludedCountries?.length) return !this.excludedCountries.includes(code);
+				return true;
+			})
+			.map((code) => ({
+				name: this.locale ? this.#displayNames.of(code) : undefined,
+				code,
+				callingCode: getCountryCallingCode(code),
+			}))
+			.sort((a, b) => (a.name && b.name ? a.name.localeCompare(b.name, this.locale) : 0));
+	}
 
-		// Include territories
-		if (this.includeTerritories) {
-			countries = countries.concat(TERRITORIES).sort((a, b) => (a.name > b.name ? 1 : -1));
+	get placeholder() {
+		const method =
+			this.#format === "national" && this.#country ? "formatNational" : "formatInternational";
+
+		const num = getExampleNumber(this.#country ?? "US", examples)![method]() ?? "";
+
+		if (this.hideCallingCode && this.#format === "international") {
+			return num.replace(`+${getCountryCallingCode(this.#country!) ?? ""}`, "").trim();
 		}
 
-		// Exclude countries
-		if (this.excludedCountries.length) {
-			countries = countries.filter(
-				(c) => !this.excludedCountries.map((x) => x.toLowerCase()).includes(c.code),
-			);
-		}
+		return num;
+	}
 
-		// Exclude territories
-		if (this.excludedTerritories.length) {
-			countries = countries.filter(
-				(c) => !this.excludedTerritories.map((x) => x.toLowerCase()).includes(c.code),
-			);
-		}
+	get valid() {
+		return this.#num.data?.isValid() ?? false;
+	}
 
-		// Exclude regions
-		if (this.excludedRegions.length) {
-			countries = countries.filter(
-				(c) => !c.regions.some((r) => this.excludedRegions.includes(r as Region)),
-			);
-		}
+	get possible() {
+		return this.#num.data?.isPossible() ?? false;
+	}
 
-		// Exclude subregions
-		if (this.excludedSubregions.length) {
-			countries = countries.filter(
-				(c) => !c.regions.some((s) => this.excludedSubregions.includes(s as Subregion)),
-			);
-		}
+	get international() {
+		return this.#num.data?.formatInternational() ?? null;
+	}
 
-		return countries;
+	get national() {
+		return this.#num.data?.formatNational() ?? null;
+	}
+
+	get number() {
+		return this.#num.data?.number ?? null;
+	}
+
+	get carrierCode() {
+		return this.#num.data?.carrierCode ?? null;
+	}
+
+	get ext() {
+		return this.#num.data?.ext ?? null;
+	}
+
+	get countryCallingCode() {
+		return (
+			this.#num.data?.countryCallingCode ??
+			(this.#country ? getCountryCallingCode(this.#country) : null)
+		);
+	}
+
+	/**
+	 * Svelte helper props object to do everything in one go
+	 * - Replaces bind:value
+	 * - Adds some keyboard accessibility fixes
+	 * - Adds accessibility attributes
+	 * - Adds placeholder
+	 */
+	get props() {
+		return {
+			type: "tel",
+			value: this.value,
+			placeholder: this.placeholder,
+			oninput: (e: Event & { currentTarget: EventTarget & HTMLInputElement }) => {
+				this.value = e.currentTarget.value;
+			},
+			onkeydown: (e: KeyboardEvent & { currentTarget: HTMLInputElement }) => {
+				const el = e.currentTarget;
+
+				// Fix for backspace deleting the closing bracket
+				// By default, backspace won't delete the closing bracket as the formatIncompletePhoneNumber function will add it back
+				if (
+					e.key === "Backspace" &&
+					el.value.at(-1) === ")" &&
+					el.selectionStart === el.value.length
+				) {
+					e.preventDefault();
+					el.value = el.value.slice(0, -2);
+				}
+			},
+		};
 	}
 }

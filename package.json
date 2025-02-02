@@ -1,6 +1,6 @@
 {
 	"name": "svelte-tel",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"license": "MIT",
 	"scripts": {
 		"dev": "vite dev",
@@ -56,5 +56,18 @@
 		"vite": "^5.4.11",
 		"vitest": "^2.0.4"
 	},
-	"dependencies": {}
+	"dependencies": {
+		"libphonenumber-js": "^1.11.17"
+	},
+	"keywords": [
+		"svelte",
+		"telephone",
+		"tel",
+		"runes",
+		"format",
+		"formatting",
+		"phone-number",
+		"input",
+		"svelte-5"
+	]
 }

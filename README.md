@@ -13,14 +13,10 @@ Simple headless phone number input handling for Svelte.
 
 ## Motivation and Goals
 
-I needed a library that would perform some basic frontend formatting of phone numbers (properly validated on the backend) but I didn't want to have to ship a massive library like `libphonenumber-js` to the client just for this luxury. I just needed something that would be "good enough".
-
 The library is fully headless, so you can use it however you want. All logic _should_ be handled by the library, and the UI to be handled by you. This way, you can have full control over the look and feel of your phone input. I also want to make it entirely based on Runes so you get the full power of Svelte.
 
 Future things I'm considering:
 
-- Using an already existing library that doesn't use `libphonenumber-js` under the hood. (or succumbing to the fact that I'll have to use it)
-- Internationalization support.
 - More options for the class.
 - Pre-built components.
 
@@ -47,10 +43,12 @@ npm install svelte-tel
 
 <!-- Now you can access the country data and the raw phone number -->
 
-<p>Country: {tel.countryData.name}</p>
-<p>Country Code: {tel.countryData.code}</p>
-<p>Phone Number: {tel.value}</p>
-<p>Raw Phone Number: {tel.rawValue}</p>
+<p>Country Code: {tel.country}</p>
+<p>Internationally formatted: {tel.value}</p>
+<p>Nationally formatted: {tel.national}</p>
+<p>Raw Phone Number: {tel.number}</p>
+<p>Is Valid: {tel.valid}</p>
+<p>Is Possible: {tel.possible}</p>
 ```
 
 🎉 That's literally it 🎉
@@ -67,7 +65,7 @@ Here's an example of how you might create a phone input with a country selector.
 
   let input: HTMLInputElement;
 
-  const tel = new Tel({ defaultCountry: "gb" });
+  const tel = new Tel({ defaultCountry: "GB" });
 </script>
 
 <label>
@@ -80,7 +78,7 @@ Here's an example of how you might create a phone input with a country selector.
         input?.focus();
       }}
     >
-      <option value={null} disabled>❓️ Select a country</option>
+      <option value={null} disabled>🌍️ Select a country</option>
       {#each tel.countries as country}
         <option value={country.code}>
           {getFlagEmoji(country.code)}
@@ -88,7 +86,7 @@ Here's an example of how you might create a phone input with a country selector.
         </option>
       {/each}
     </select>
-    <input type="tel" bind:this={input} bind:value={tel.value} />
+    <input bind:this={input} {...tel.props} />
   </div>
 </label>
 ```
@@ -102,23 +100,27 @@ Still need more examples? [Check out the demo website](https://mattheousdt.githu
   import { Tel } from "svelte-tel";
 
   const tel = new Tel({
-    // Default data
-    defaultCountry: "US",
-    // Note: defaultValue takes precedence over the defaultCountry
-    defaultValue: "1234567890",
-
-    // Exclude countries/regions
-    excludeCountries: ["CA", "MX"],
-    excludeRegions: ["africa"],
-    excludeSubregions: ["eu"],
-
-    // Include territories like Jersey, Cayman Islands, etc.
-    includeTerritories: true,
+    // Required if using national format
+    defaultCountry: "GB",
+    // The default value of the input
+    defaultValue: "447123456789",
+    // Language to use for translations
+		locale: "en",
+    // The format to use when formatting the phone number
+		format: "international";
+		// Whether to hide the country code prefix in the input
+		hideCallingCode: false;
+		// Whether the country code is editable when in international format
+		editableCountryCode: true;
+		// The countries to exclude from the countries list
+		excludeCountries: ["US"];
+		// The countries to include in the countries list
+		includeCountries: ["GB", "IE"];
   });
 </script>
 
 <!-- All options are $state() runes, so you can bind or change them after initialization -->
-<input type="checkbox" bind:checked={tel.includeTerritories} />
+<input type="checkbox" bind:checked={tel.hideCallingCode} />
 ```
 
 ## Contributing
