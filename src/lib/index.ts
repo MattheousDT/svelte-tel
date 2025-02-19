@@ -1,2 +1,2 @@
 // Reexport your entry components here
-export * from "./tel.svelte";
+export * from "./tel.svelte.js";

@@ -9,7 +9,6 @@ import {
 	type CountryCode,
 } from "libphonenumber-js/min";
 import examples from "libphonenumber-js/mobile/examples";
-import { tick } from "svelte";
 
 export class Tel<
 	TFormat extends "national" | "international" = "international",
@@ -22,7 +21,7 @@ export class Tel<
 
 	locale: Intl.LocalesArgument = $state("en");
 	hideCallingCode = $state(false);
-	editableCountryCode = $state(false);
+	editableCountryCode = $state(true);
 	includedCountries = $state<TIncluded>([] as unknown as TIncluded);
 	excludedCountries = $state<TExcluded>([] as unknown as TExcluded);
 
@@ -35,7 +34,9 @@ export class Tel<
 				const code = getCountryCallingCode(this.#country);
 				val = `+${code}${val.slice(code.length + 1)}`;
 			}
-			if (!val.startsWith("+")) val = `+${val}`;
+			if (val.length > 0 && !val.startsWith("+")) {
+				val = `+${val}`;
+			}
 		} else {
 			val = val.replace(/^\+/, "");
 		}
@@ -90,8 +91,18 @@ export class Tel<
 		if (config?.includeCountries) this.includedCountries = config.includeCountries;
 		if (config?.locale) this.locale = config.locale;
 
-		if (config?.editableCountryCode && config.defaultCountry && !config.defaultValue) {
+		if (config?.editableCountryCode === false && !config?.defaultValue && config?.defaultCountry) {
 			this.#input = `+${getCountryCallingCode(config.defaultCountry)}`;
+		}
+
+		if (
+			this.hideCallingCode &&
+			this.#format === "international" &&
+			this.#country &&
+			config?.defaultValue &&
+			!config.defaultValue.startsWith(`+${getCountryCallingCode(this.#country)}`)
+		) {
+			this.#input = `+${getCountryCallingCode(this.#country)}${config.defaultValue}`;
 		}
 	}
 
@@ -102,12 +113,10 @@ export class Tel<
 		return this.#value;
 	}
 	set value(val: string) {
-		tick().then(() => {
-			if (this.hideCallingCode && this.#format === "international" && this.#country) {
-				val = `+${getCountryCallingCode(this.#country)}${val}`;
-			}
-			this.#input = val;
-		});
+		if (this.hideCallingCode && this.#format === "international" && this.#country) {
+			val = `+${getCountryCallingCode(this.#country)}${val}`;
+		}
+		this.#input = val;
 	}
 
 	get format() {
@@ -133,6 +142,23 @@ export class Tel<
 	}
 	set country(val: CountryCode | null) {
 		if (val === null) this.#format = "international";
+
+		const existing = this.#country?.toString() as CountryCode | undefined;
+		const existingCC = existing ? getCountryCallingCode(existing) : undefined;
+		if (
+			this.#format === "international" &&
+			val &&
+			existingCC &&
+			this.#input.startsWith(`+${existingCC}`)
+		) {
+			const newCC = getCountryCallingCode(val);
+			if (this.hideCallingCode === false) {
+				this.#input = `+${newCC}` + this.#input.slice(existingCC.length + 1);
+			} else {
+				// TODO: handle this case
+			}
+		}
+
 		this.#country = val ?? undefined;
 	}
 

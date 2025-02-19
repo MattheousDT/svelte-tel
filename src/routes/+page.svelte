@@ -4,9 +4,7 @@
 	let input: HTMLInputElement;
 
 	const tel = new Tel({
-		format: "international",
 		defaultCountry: "GB",
-		defaultValue: "+44 7123 456789",
 	});
 
 	function getFlagEmoji(countryCode: string) {
