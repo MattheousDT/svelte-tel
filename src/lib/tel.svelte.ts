@@ -9,6 +9,7 @@ import {
 	type CountryCode,
 } from "libphonenumber-js/min";
 import examples from "libphonenumber-js/mobile/examples";
+import type { HTMLInputAttributes } from "svelte/elements";
 
 export class Tel<
 	TFormat extends "national" | "international" = "international",
@@ -231,12 +232,14 @@ export class Tel<
 	 * - Adds some keyboard accessibility fixes
 	 * - Adds accessibility attributes
 	 * - Adds placeholder
+	 * - Adds autocomplete attribute
 	 */
 	get props() {
 		return {
 			type: "tel",
 			value: this.value,
 			placeholder: this.placeholder,
+			autocomplete: this.#format === "national" ? "tel-national" : "tel",
 			oninput: (e: Event & { currentTarget: EventTarget & HTMLInputElement }) => {
 				this.value = e.currentTarget.value;
 			},
@@ -254,6 +257,6 @@ export class Tel<
 					el.value = el.value.slice(0, -2);
 				}
 			},
-		};
+		} satisfies HTMLInputAttributes;
 	}
 }
